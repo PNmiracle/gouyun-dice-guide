@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>狗运当骰 · 新手入门指南</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;500;700&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   CSS CUSTOM PROPERTIES — DAISY DAYS THEME
+   =========================================== */
+:root {
+  /* Palette */
+  --cream: #F5F0E6;
+  --turquoise: #7ECDC0;
+  --soft-pink: #F7C8D4;
+  --butter: #FDE68A;
+  --mint: #A8E6CF;
+  --lavender: #D4A5E8;
+  --peach: #FFCBA4;
+  --sky: #A8D8F0;
+  --coral: #F8635F;
+  --text-dark: #2D2D2D;
+  --text-muted: #6B6B6B;
+  --white: #FFFFFF;
+  --surface-turquoise: #7ECDC0;
+  --surface-mint: #A8E6CF;
+  --surface-peach: #FFCBA4;
+  --surface-lavender: #D4A5E8;
+  --surface-sky: #A8D8F0;
+  --surface-soft-pink: #F7C8D4;
+  --surface-butter: #FDE68A;
+
+  /* Borders & Shadows */
+  --border-primary: 3px solid var(--text-dark);
+  --border-thin: 2px solid var(--text-dark);
+  --shadow-default: 6px 6px 0 var(--text-dark);
+  --shadow-small: 4px 4px 0 var(--text-dark);
+
+  /* Typography — CJK adapted */
+  --font-display: 'ZCOOL XiaoWei', serif;
+  --font-display-latin: 'Fredoka One', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+  --display-size: 88px;
+  --headline-size: 56px;
+  --title-size: 38px;
+  --subtitle-size: 28px;
+  --body-size: 22px;
+  --meta-size: 18px;
+
+  /* Spacing */
+  --radius: 20px;
+  --radius-lg: 28px;
+  --radius-pill: 50px;
+
+  /* Animation */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-normal: 0.6s;
+
+  /* Stage */
+  --stage-bg: #000;
+  --slide-bg: var(--cream);
+}
+
+/* ===========================================
+   VIEWPORT-BASE.CSS — MANDATORY (FULL)
+   =========================================== */
+html, body {
+    width: 100%; height: 100%; margin: 0; overflow: hidden;
+    background: var(--stage-bg);
+}
+.deck-viewport {
+    position: fixed; inset: 0; overflow: hidden;
+    background: var(--stage-bg);
+}
+.deck-stage {
+    position: absolute; left: 0; top: 0;
+    width: 1920px; height: 1080px; overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg);
+}
+.slide {
+    position: absolute; inset: 0;
+    width: 1920px; height: 1080px; overflow: hidden;
+    display: block;
+    visibility: hidden; opacity: 0; pointer-events: none;
+    background: var(--slide-bg);
+}
+.slide.active, .slide.visible {
+    visibility: visible; opacity: 1; pointer-events: auto; z-index: 1;
+}
+img, video, canvas, svg {
+    max-width: 100%; max-height: 100%;
+}
+.deck-controls {
+    position: fixed; left: 50%; bottom: 22px;
+    transform: translateX(-50%); z-index: 1000;
+}
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide { position: relative; display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px; break-after: page; }
+    .slide:last-child { break-after: auto; }
+    .deck-controls { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* ===========================================
+   DAISY DAYS COMPONENT STYLES
+   =========================================== */
+
+/* Cards */
+.dd-card {
+  background: var(--white);
+  border: var(--border-primary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-default);
+  padding: 40px 48px;
+}
+.dd-card-lg {
+  background: var(--white);
+  border: var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-default);
+  padding: 48px 56px;
+}
+.dd-card-sm {
+  background: var(--white);
+  border: var(--border-thin);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-small);
+  padding: 20px 28px;
+}
+
+/* Badge pill */
+.dd-badge {
+  display: inline-block;
+  padding: 8px 22px;
+  border-radius: var(--radius-pill);
+  border: var(--border-primary);
+  font-family: var(--font-display);
+  font-size: 20px;
+  background: var(--butter);
+  color: var(--text-dark);
+}
+
+/* Circle dot */
+.dd-circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: var(--border-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--white);
+  box-shadow: var(--shadow-small);
+  flex-shrink: 0;
+}
+
+/* Step circle */
+.dd-step {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: var(--border-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display-latin);
+  font-size: 32px;
+  color: var(--white);
+  box-shadow: var(--shadow-small);
+  flex-shrink: 0;
+}
+
+/* Typography */
+.dd-display {
+  font-family: var(--font-display);
+  font-size: var(--display-size);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0;
+  color: var(--text-dark);
+}
+.dd-headline {
+  font-family: var(--font-display);
+  font-size: var(--headline-size);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--text-dark);
+}
+.dd-title {
+  font-family: var(--font-display);
+  font-size: var(--title-size);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0;
+  color: var(--text-dark);
+}
+.dd-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--subtitle-size);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+.dd-body {
+  font-family: var(--font-body);
+  font-size: var(--body-size);
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--text-dark);
+  letter-spacing: 0;
+}
+.dd-body-strong {
+  font-family: var(--font-body);
+  font-size: var(--body-size);
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-dark);
+  letter-spacing: 0;
+}
+.dd-meta {
+  font-family: var(--font-body);
+  font-size: var(--meta-size);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+/* Surface caps */
+.dd-surface {
+  border: var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-default);
+  overflow: hidden;
+}
+.dd-surface-cap {
+  padding: 20px 36px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--white);
+}
+.dd-surface-body {
+  background: var(--white);
+  padding: 32px 36px;
+}
+
+/* ===========================================
+   DECORATIONS
+   =========================================== */
+.deco { position: absolute; pointer-events: none; z-index: 0; }
+
+/* Daisy SVG */
+.daisy-svg { opacity: 0.6; }
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity var(--duration-normal) var(--ease-out-expo),
+              transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal:nth-child(1) { transition-delay: 0.05s; opacity: 1; transform: translateY(0); }
+.slide.visible .reveal:nth-child(2) { transition-delay: 0.15s; opacity: 1; transform: translateY(0); }
+.slide.visible .reveal:nth-child(3) { transition-delay: 0.25s; opacity: 1; transform: translateY(0); }
+.slide.visible .reveal:nth-child(4) { transition-delay: 0.35s; opacity: 1; transform: translateY(0); }
+.slide.visible .reveal:nth-child(5) { transition-delay: 0.42s; opacity: 1; transform: translateY(0); }
+.slide.visible .reveal:nth-child(6) { transition-delay: 0.49s; opacity: 1; transform: translateY(0); }
+.slide.visible .reveal:nth-child(7) { transition-delay: 0.55s; opacity: 1; transform: translateY(0); }
+.slide.visible .reveal:nth-child(8) { transition-delay: 0.60s; opacity: 1; transform: translateY(0); }
+
+.slide.visible .reveal-left {
+  opacity: 1; transform: translateX(0);
+}
+.reveal-left {
+  opacity: 0; transform: translateX(-40px);
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+}
+.slide.visible .reveal-left:nth-child(1) { transition-delay: 0.05s; }
+.slide.visible .reveal-left:nth-child(2) { transition-delay: 0.18s; }
+.slide.visible .reveal-left:nth-child(3) { transition-delay: 0.31s; }
+
+/* Bounce for badges */
+.bounce-in {
+  opacity: 0; transform: scale(0);
+  transition: opacity 0.4s var(--ease-out-expo), transform 0.4s var(--ease-out-expo);
+}
+.slide.visible .bounce-in { opacity: 1; transform: scale(1); }
+.slide.visible .bounce-in:nth-child(1) { transition-delay: 0.5s; }
+.slide.visible .bounce-in:nth-child(2) { transition-delay: 0.6s; }
+.slide.visible .bounce-in:nth-child(3) { transition-delay: 0.7s; }
+
+/* ===========================================
+   NAVIGATION
+   =========================================== */
+.deck-nav {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 10px; z-index: 1000;
+}
+.nav-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: rgba(255,255,255,0.3); border: none; cursor: pointer;
+  transition: background 0.3s;
+}
+.nav-dot.active { background: var(--turquoise); }
+.slide-counter {
+  position: fixed; bottom: 30px; right: 40px;
+  font-family: var(--font-display-latin);
+  font-size: 16px; color: rgba(255,255,255,0.5); z-index: 1000;
+}
+
+/* ===========================================
+   VIDEO EMBED
+   =========================================== */
+.video-frame {
+  position: relative;
+  border: var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-default);
+  overflow: hidden;
+  background: var(--text-dark);
+  cursor: pointer;
+}
+.video-frame iframe {
+  display: block; border: none;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 2;
+}
+.video-poster {
+  position: absolute; inset: 0; z-index: 1;
+  background-size: cover; background-position: center;
+  display: flex; align-items: center; justify-content: center;
+}
+.video-poster.hidden { display: none; }
+.play-btn {
+  width: 80px; height: 80px;
+  background: var(--coral);
+  border: 3px solid var(--text-dark);
+  border-radius: 50%;
+  box-shadow: var(--shadow-small);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s var(--ease-out-expo);
+}
+.video-frame:hover .play-btn {
+  transform: scale(1.1);
+}
+.play-btn::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 28px solid white;
+  border-top: 18px solid transparent;
+  border-bottom: 18px solid transparent;
+  margin-left: 4px;
+}
+
+/* ===========================================
+   IMAGE FRAME
+   =========================================== */
+.img-frame {
+  border: var(--border-primary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-default);
+  overflow: hidden;
+  background: var(--white);
+}
+.img-frame img {
+  display: block; width: 100%; height: auto; object-fit: cover;
+}
+
+/* ===========================================
+   SLIDE-SPECIFIC BACKGROUNDS
+   =========================================== */
+.slide-bg-turquoise { background: var(--turquoise); }
+.slide-bg-mint { background: var(--mint); }
+.slide-bg-peach { background: var(--peach); }
+.slide-bg-lavender { background: var(--lavender); }
+.slide-bg-sky { background: var(--sky); }
+.slide-bg-soft-pink { background: var(--soft-pink); }
+
+/* ===========================================
+   STEP NUMBER BADGE
+   =========================================== */
+.step-num {
+  font-family: var(--font-display-latin);
+  font-size: 28px;
+  color: var(--white);
+}
+
+/* Bullet dot for lists */
+.bullet-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--text-dark);
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+/* ===========================================
+   EDIT MODE TOGGLE
+   =========================================== */
+.edit-hotzone {
+  position: fixed; top: 0; left: 0;
+  width: 80px; height: 80px; z-index: 10000; cursor: pointer;
+}
+.edit-toggle {
+  position: fixed; top: 12px; left: 12px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10001;
+  background: var(--white); border: var(--border-thin);
+  border-radius: 8px; padding: 6px 12px;
+  font-family: var(--font-body); font-size: 16px;
+  cursor: pointer; color: var(--text-dark);
+}
+.edit-toggle.show, .edit-toggle.active {
+  opacity: 1; pointer-events: auto;
+}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+
+    <!-- ===== SLIDE 1: TITLE ===== -->
+    <section class="slide active slide-bg-turquoise">
+      <!-- Decorations -->
+      <svg class="deco" style="top:60px;left:80px;width:90px;height:90px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="12" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><circle cx="30" cy="20" r="10" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><circle cx="70" cy="18" r="10" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><circle cx="18" cy="50" r="10" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><circle cx="82" cy="50" r="10" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><circle cx="30" cy="78" r="10" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><circle cx="70" cy="78" r="10" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/></svg>
+      <svg class="deco" style="top:80px;right:120px;width:80px;height:80px;" viewBox="0 0 100 100"><polygon points="50,10 61,38 92,38 67,58 76,86 50,68 24,86 33,58 8,38 39,38" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/></svg>
+      <svg class="deco" style="bottom:80px;left:160px;width:60px;height:60px;opacity:0.7;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#F7C8D4" stroke="#2D2D2D" stroke-width="3"/><circle cx="38" cy="38" r="6" fill="#2D2D2D"/><circle cx="62" cy="38" r="6" fill="#2D2D2D"/><path d="M35,65 Q50,80 65,65" fill="none" stroke="#2D2D2D" stroke-width="3" stroke-linecap="round"/></svg>
+      <svg class="deco" style="bottom:120px;right:100px;width:80px;height:50px;opacity:0.6;" viewBox="0 0 120 60"><ellipse cx="30" cy="35" rx="28" ry="18" fill="white" stroke="#2D2D2D" stroke-width="3"/><ellipse cx="66" cy="28" rx="30" ry="20" fill="white" stroke="#2D2D2D" stroke-width="3"/><ellipse cx="96" cy="36" rx="22" ry="16" fill="white" stroke="#2D2D2D" stroke-width="3"/></svg>
+
+      <!-- Main card -->
+      <div class="dd-card-lg reveal" style="position:absolute; top:180px; left:120px; right:120px; bottom:180px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+        <div style="margin-bottom:16px;">
+          <span class="dd-badge bounce-in" style="background:var(--butter);">🐕 聚会桌游</span>
+          <span class="dd-badge bounce-in" style="margin-left:16px; background:var(--mint);">🎲 骰子驱策</span>
+          <span class="dd-badge bounce-in" style="margin-left:16px; background:var(--soft-pink);">👥 2-4人</span>
+        </div>
+        <h1 class="dd-display reveal" style="font-size:120px; margin:8px 0;">狗运当骰</h1>
+        <p class="dd-subtitle reveal" style="font-size:32px; margin-top:4px;">SPOTS · 新手入门完全指南</p>
+        <div style="margin-top:24px; display:flex; gap:32px; align-items:center;">
+          <span class="dd-meta reveal" style="color:var(--text-dark);">⏱ 一局 25-30 分钟</span>
+          <span class="dd-meta reveal" style="color:var(--text-dark);">📖 规则 5 分钟上手</span>
+          <span class="dd-meta reveal" style="color:var(--text-dark);">🎉 欢乐停不下来</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 2: GAME OVERVIEW ===== -->
+    <section class="slide slide-bg-cream" style="background:var(--cream);">
+      <svg class="deco" style="top:30px;right:60px;width:70px;height:70px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="40">🎲</text></svg>
+      <svg class="deco" style="bottom:40px;left:60px;width:60px;height:60px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#FFCBA4" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="60" text-anchor="middle" font-size="36">🐕</text></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:var(--turquoise); color:white;">01</span>
+      </div>
+
+      <div style="position:absolute; top:100px; left:80px; right:80px;">
+        <h2 class="dd-headline reveal">什么是狗运当骰？</h2>
+        <p class="dd-subtitle reveal" style="margin-top:8px;">SPOTS — 一款"博运气"的骰子放置欢乐聚会桌游</p>
+      </div>
+
+      <div style="position:absolute; top:320px; left:80px; right:80px; display:flex; gap:40px;">
+        <div class="dd-card reveal" style="flex:1;">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+            <div class="dd-circle" style="background:var(--turquoise);">🎯</div>
+            <span class="dd-title" style="font-size:30px;">游戏目标</span>
+          </div>
+          <p class="dd-body">掷骰子填满狗狗卡牌上的<b>斑点</b>，最先完成 <b>6 张</b>狗狗卡牌的玩家获胜！</p>
+        </div>
+        <div class="dd-card reveal" style="flex:1;">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+            <div class="dd-circle" style="background:var(--soft-pink);">👥</div>
+            <span class="dd-title" style="font-size:30px;">基本信息</span>
+          </div>
+          <p class="dd-body"><b>人数</b>：2-4人 &nbsp;|&nbsp; <b>时长</b>：25-30分钟<br>
+          <b>设计师</b>：Jon Perry / Alex Hague / Justin Vickers<br>
+          <b>中文版</b>：游人码头代理</p>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:60px; left:80px; right:80px;">
+        <div class="dd-card reveal" style="display:flex; gap:32px; align-items:center; padding:28px 40px;">
+          <div class="dd-step" style="background:var(--coral); width:56px; height:56px; font-size:24px;">✨</div>
+          <p class="dd-body-strong" style="margin:0; flex:1;">适合场景：朋友聚会 · 家庭娱乐 · 公司团建 · 新手入门首选！规则简单、节奏快、画风可爱，每次掷骰都充满期待。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 3: GAME COMPONENTS ===== -->
+    <section class="slide" style="background:var(--cream);">
+      <svg class="deco" style="top:40px;right:100px;width:80px;height:80px;" viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="8" fill="#A8D8F0" stroke="#2D2D2D" stroke-width="3"/><circle cx="35" cy="45" r="6" fill="#2D2D2D"/><circle cx="55" cy="35" r="6" fill="#2D2D2D"/><circle cx="45" cy="60" r="6" fill="#2D2D2D"/><circle cx="65" cy="55" r="6" fill="#2D2D2D"/></svg>
+      <svg class="deco" style="bottom:60px;left:60px;width:60px;height:60px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#A8E6CF" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="36">🦴</text></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:var(--mint); color:white;">02</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:100px; left:80px;">游戏组件一览</h2>
+
+      <div style="position:absolute; top:250px; left:80px; right:80px; display:flex; gap:32px; flex-wrap:wrap;">
+        <div class="dd-card-sm reveal" style="flex:1; min-width:320px; text-align:center; padding:28px;">
+          <div class="dd-circle" style="background:var(--butter); color:var(--text-dark); margin:0 auto 12px; width:64px; height:64px; font-size:30px;">🎲</div>
+          <span class="dd-title" style="font-size:26px;">骰子</span>
+          <p class="dd-body" style="font-size:19px; margin-top:6px;">若干颗标准六面骰<br>每次投掷多颗，点数=放置条件</p>
+        </div>
+        <div class="dd-card-sm reveal" style="flex:1; min-width:320px; text-align:center; padding:28px;">
+          <div class="dd-circle" style="background:var(--soft-pink); color:var(--text-dark); margin:0 auto 12px; width:64px; height:64px; font-size:30px;">🐕</div>
+          <span class="dd-title" style="font-size:26px;">狗狗卡牌</span>
+          <p class="dd-body" style="font-size:19px; margin-top:6px;">每张狗狗身上有若干"斑点"<br>每个斑点需要对应点数的骰子</p>
+        </div>
+        <div class="dd-card-sm reveal" style="flex:1; min-width:320px; text-align:center; padding:28px;">
+          <div class="dd-circle" style="background:var(--sky); color:var(--text-dark); margin:0 auto 12px; width:64px; height:64px; font-size:30px;">🏠</div>
+          <span class="dd-title" style="font-size:26px;">后院区域</span>
+          <p class="dd-body" style="font-size:19px; margin-top:6px;">无法放置的骰子进后院<br>后院满了=爆炸扣分！</p>
+        </div>
+        <div class="dd-card-sm reveal" style="flex:1; min-width:320px; text-align:center; padding:28px;">
+          <div class="dd-circle" style="background:var(--lavender); color:var(--text-dark); margin:0 auto 12px; width:64px; height:64px; font-size:30px;">🃏</div>
+          <span class="dd-title" style="font-size:26px;">行动卡牌</span>
+          <p class="dd-body" style="font-size:19px; margin-top:6px;">特殊技能卡，提供额外能力<br>如重掷、额外骰子、偷看等</p>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:60px; left:80px; right:80px; display:flex; gap:24px; align-items:center;">
+        <div class="img-frame reveal" style="width:320px; height:200px;">
+          <img src="../.frontend-slides/assets/game-cover-2.jpg" alt="狗运当骰游戏" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="dd-card reveal" style="flex:1; padding:28px 36px;">
+          <p class="dd-body-strong" style="margin:0;">💡 中文正版由<b>游人码头</b>代理发行，包含数十张精美狗狗插画卡牌。游戏支持 <b>Board Game Arena</b> 在线游玩！</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 4: CORE GOAL ===== -->
+    <section class="slide slide-bg-soft-pink">
+      <svg class="deco" style="top:50px;left:80px;width:70px;height:70px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="60" text-anchor="middle" font-size="32">🏆</text></svg>
+      <svg class="deco" style="bottom:80px;right:80px;width:90px;height:90px;opacity:0.8;" viewBox="0 0 100 100"><polygon points="50,10 60,35 88,38 67,58 76,86 50,70 24,86 33,58 12,38 40,35" fill="#7ECDC0" stroke="#2D2D2D" stroke-width="3"/></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:white; color:var(--text-dark);">03</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:110px; left:80px; color:white; text-shadow:3px 3px 0 rgba(0,0,0,0.2);">核心目标：最先完成 6 只狗狗！</h2>
+
+      <div style="position:absolute; top:260px; left:80px; right:80px; display:flex; gap:40px; align-items:center;">
+        <div class="dd-card-lg reveal" style="flex:1.2; text-align:center; padding:48px;">
+          <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap; margin-bottom:24px;">
+            <div class="dd-step" style="background:var(--turquoise);">1</div>
+            <span class="dd-title" style="font-size:44px; line-height:72px;">→</span>
+            <div class="dd-step" style="background:var(--mint);">2</div>
+            <span class="dd-title" style="font-size:44px; line-height:72px;">→</span>
+            <div class="dd-step" style="background:var(--peach);">3</div>
+          </div>
+          <p class="dd-body" style="font-size:24px;">
+            掷骰子 → 填斑点 → 收狗狗<br>
+            重复直到集齐 <b style="font-size:32px;color:var(--coral);">6 张</b> 完成计分的狗狗卡牌
+          </p>
+        </div>
+        <div class="dd-card-lg reveal" style="flex:0.8; padding:36px;">
+          <p class="dd-body-strong">📋 每张狗狗卡牌上都有：</p>
+          <div style="margin-top:16px; display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="bullet-dot" style="background:var(--butter);"></div>
+              <span class="dd-body">若干"斑点"，标注了需要的骰子点数</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="bullet-dot" style="background:var(--mint);"></div>
+              <span class="dd-body">完成后的得分（通常 1-3 分）</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="bullet-dot" style="background:var(--peach);"></div>
+              <span class="dd-body">可爱的狗狗插画！🐶</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:80px; left:80px; right:80px;">
+        <div class="dd-card reveal" style="background:var(--turquoise); padding:24px 36px;">
+          <p class="dd-body-strong" style="color:white; margin:0; text-align:center; font-size:24px;">
+            ⚡ 关键：不是比分数的游戏！先到 6 张就立即获胜，不管分数多少！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 5: TURN FLOW OVERVIEW ===== -->
+    <section class="slide" style="background:var(--cream);">
+      <svg class="deco" style="top:30px;right:50px;width:80px;height:80px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#D4A5E8" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="60" text-anchor="middle" font-size="32">🔄</text></svg>
+      <svg class="deco" style="bottom:50px;left:60px;width:60px;height:60px;" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="10" fill="#A8E6CF" stroke="#2D2D2D" stroke-width="3" transform="rotate(15,50,50)"/></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:var(--lavender); color:white;">04</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:100px; left:80px;">回合流程：123 走！</h2>
+      <p class="dd-subtitle reveal" style="position:absolute; top:175px; left:80px;">一个回合只需三步，简单到飞起</p>
+
+      <!-- Step 1 -->
+      <div class="reveal" style="position:absolute; top:260px; left:80px; right:80px; display:flex; gap:30px; align-items:stretch;">
+        <div class="dd-step" style="background:var(--turquoise); width:80px; height:80px; font-size:36px;">1</div>
+        <div class="dd-card" style="flex:1; padding:32px 40px;">
+          <span class="dd-title" style="font-size:32px;">🎲 掷骰子</span>
+          <p class="dd-body" style="margin-top:8px;">从骰子池中拿取骰子并投掷。你可以选择<b>一次投掷多颗</b>（默认每次可掷的骰子数量取决于行动卡）。投掷后获得对应点数的骰子。</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="reveal" style="position:absolute; top:450px; left:80px; right:80px; display:flex; gap:30px; align-items:stretch;">
+        <div class="dd-step" style="background:var(--mint); width:80px; height:80px; font-size:36px;">2</div>
+        <div class="dd-card" style="flex:1; padding:32px 40px;">
+          <span class="dd-title" style="font-size:32px;">📍 放置骰子</span>
+          <p class="dd-body" style="margin-top:8px;">选择一颗骰子，放到某张狗狗卡牌上<b>对应点数的斑点位置</b>。每个斑点只能放一颗骰子，放上去就拿不下来了！</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="reveal" style="position:absolute; top:640px; left:80px; right:80px; display:flex; gap:30px; align-items:stretch;">
+        <div class="dd-step" style="background:var(--peach); width:80px; height:80px; font-size:36px;">3</div>
+        <div class="dd-card" style="flex:1; padding:32px 40px;">
+          <span class="dd-title" style="font-size:32px;">📋 检查结算</span>
+          <p class="dd-body" style="margin-top:8px;">如果某张狗狗卡牌所有斑点都被填满 → <b>立即结算</b>（收取得分并拿取新卡牌）。如果还有骰子没放完 → 回到步骤 2 继续放置。</p>
+        </div>
+      </div>
+
+      <!-- Bottom tip -->
+      <div style="position:absolute; bottom:30px; left:80px; right:80px;">
+        <div class="dd-card reveal" style="background:var(--butter); padding:20px 32px; text-align:center;">
+          <p class="dd-body-strong" style="margin:0; font-size:20px;">💡 所有骰子放置完毕后回合结束，轮到下一位玩家。找不到了放的地方？那就只能放进"后院"了……</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 6: PLACING DICE - DETAILED ===== -->
+    <section class="slide slide-bg-mint">
+      <svg class="deco" style="top:50px;right:100px;width:70px;height:70px;" viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="8" fill="white" stroke="#2D2D2D" stroke-width="3"/><text x="35" y="58" font-size="28">⚀</text><text x="60" y="58" font-size="28">⚂</text></svg>
+      <svg class="deco" style="bottom:60px;left:80px;width:60px;height:60px;opacity:0.8;" viewBox="0 0 100 100"><circle cx="40" cy="60" r="25" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><circle cx="70" cy="40" r="30" fill="#FFCBA4" stroke="#2D2D2D" stroke-width="3"/></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:white; color:var(--text-dark);">05</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:110px; left:80px; color:white; text-shadow:3px 3px 0 rgba(0,0,0,0.2);">放置骰子的门道</h2>
+
+      <div style="position:absolute; top:240px; left:80px; right:80px; display:flex; gap:40px;">
+        <!-- Left: Rules -->
+        <div class="dd-card-lg reveal" style="flex:1.2; padding:40px;">
+          <span class="dd-title" style="font-size:30px;">✅ 放置规则</span>
+          <div style="margin-top:20px; display:flex; flex-direction:column; gap:16px;">
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="bullet-dot" style="background:var(--turquoise);"></div>
+              <span class="dd-body">骰子点数必须<b>完全匹配</b>斑点上标注的数字</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="bullet-dot" style="background:var(--mint);"></div>
+              <span class="dd-body">每个斑点<b>只能放一颗</b>骰子</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="bullet-dot" style="background:var(--peach);"></div>
+              <span class="dd-body">放置后<b>不能移动或取回</b>骰子</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:14px;">
+              <div class="bullet-dot" style="background:var(--lavender);"></div>
+              <span class="dd-body">可以同时<b>多张</b>狗狗卡上放置骰子</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Example -->
+        <div class="dd-card-lg reveal" style="flex:0.8; padding:40px; text-align:center; background:white;">
+          <span class="dd-title" style="font-size:28px;">🎯 举个栗子</span>
+          <div style="margin-top:20px; border:3px dashed var(--text-muted); border-radius:16px; padding:28px;">
+            <p class="dd-body" style="margin:0;">一张狗狗卡有斑点：</p>
+            <p class="dd-body-strong" style="font-size:26px; margin:8px 0;">⚀ ⚁ ⚃ ⚄</p>
+            <p class="dd-body" style="margin:0;">你需要掷出 <b>1、2、4、5</b><br>四种点数才能填满它！</p>
+          </div>
+          <p class="dd-meta" style="margin-top:16px; font-size:16px;">有些卡斑点少（2-3个）容易完成<br>有些卡斑点多（5-6个）但分数高</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 7: COMPLETING DOG CARDS ===== -->
+    <section class="slide" style="background:var(--cream);">
+      <svg class="deco" style="top:40px;left:100px;width:70px;height:70px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#F7C8D4" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="34">✅</text></svg>
+      <svg class="deco" style="bottom:60px;right:80px;width:80px;height:80px;" viewBox="0 0 100 100"><rect x="12" y="12" width="76" height="76" rx="6" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="34">🎉</text></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:var(--peach); color:white;">06</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:100px; left:80px;">结算狗狗卡 & 拿新卡</h2>
+
+      <div style="position:absolute; top:240px; left:80px; right:80px; display:flex; gap:40px;">
+        <div class="reveal" style="flex:1;">
+          <div class="dd-surface">
+            <div class="dd-surface-cap" style="background:var(--turquoise);">🐕 填满斑点时</div>
+            <div class="dd-surface-body">
+              <p class="dd-body" style="margin:0;">当一张狗狗卡上<b>所有斑</b>点都被骰子填满后，这张卡<b>自动完成</b>！</p>
+              <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="font-size:24px;">1️⃣</span>
+                  <span class="dd-body">将完成的卡牌移到计分区</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="font-size:24px;">2️⃣</span>
+                  <span class="dd-body">从牌库<b>抽取一张新的狗狗卡</b></span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="font-size:24px;">3️⃣</span>
+                  <span class="dd-body">新卡可能带来更多挑战或机遇</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal" style="flex:1;">
+          <div class="dd-surface">
+            <div class="dd-surface-cap" style="background:var(--soft-pink);">⚠️ 重要提醒</div>
+            <div class="dd-surface-body">
+              <p class="dd-body" style="margin:0;">你<b>可以同时持有</b>多张狗狗卡牌！</p>
+              <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:flex-start; gap:10px;">
+                  <div class="bullet-dot" style="background:var(--coral);"></div>
+                  <span class="dd-body">场上最多 <b>6 张</b>狗狗卡（不同版本可能不同）</span>
+                </div>
+                <div style="display:flex; align-items:flex-start; gap:10px;">
+                  <div class="bullet-dot" style="background:var(--butter);"></div>
+                  <span class="dd-body">满了就不能再抽新卡！</span>
+                </div>
+                <div style="display:flex; align-items:flex-start; gap:10px;">
+                  <div class="bullet-dot" style="background:var(--mint);"></div>
+                  <span class="dd-body">策略：挑斑点少的先完成，快速积累</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:60px; left:80px; right:80px;">
+        <div class="dd-card reveal" style="padding:28px 40px; display:flex; gap:24px; align-items:center;">
+          <div class="dd-step" style="background:var(--lavender); width:56px; height:56px; font-size:24px;">🏆</div>
+          <p class="dd-body-strong" style="margin:0; flex:1;">计分区的卡牌越多，离胜利越近！记住：<b>第 6 张完成即获胜</b>，不需要等别人。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 8: BACKYARD RULES ===== -->
+    <section class="slide slide-bg-peach">
+      <svg class="deco" style="top:40px;left:80px;width:70px;height:70px;" viewBox="0 0 100 100"><polygon points="50,10 60,35 88,38 67,58 76,86 50,70 24,86 33,58 12,38 40,35" fill="white" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="28">💥</text></svg>
+      <svg class="deco" style="bottom:80px;right:70px;width:60px;height:60px;opacity:0.7;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#F8635F" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="30">⚠️</text></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:white; color:var(--text-dark);">07</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:100px; left:80px; color:white; text-shadow:3px 3px 0 rgba(0,0,0,0.2);">后院规则：赌狗翻车现场</h2>
+      <p class="dd-subtitle reveal" style="position:absolute; top:175px; left:80px; color:rgba(255,255,255,0.85);">这就是游戏最刺激的地方！</p>
+
+      <div style="position:absolute; top:260px; left:80px; right:80px; display:flex; gap:36px;">
+        <div class="dd-card-lg reveal" style="flex:1; padding:36px;">
+          <span class="dd-title" style="font-size:30px;">🏚️ 什么情况进后院？</span>
+          <p class="dd-body" style="margin-top:14px;">当你掷出的骰子<b>所有可放置的斑点都已被占用</b>，或者你选择不放置某颗骰子时，它就会被放到你的"后院"。</p>
+          <div style="margin-top:16px; padding:16px 20px; background:var(--soft-pink); border-radius:12px; border:2px solid var(--coral);">
+            <p class="dd-body-strong" style="margin:0; color:var(--coral);">后院容量 = 7 颗骰子</p>
+          </div>
+        </div>
+        <div class="dd-card-lg reveal" style="flex:1; padding:36px;">
+          <span class="dd-title" style="font-size:30px;">💥 后院爆炸！</span>
+          <p class="dd-body" style="margin-top:14px;">当你的后院<b>超过 7 颗骰子</b>时——</p>
+          <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="bullet-dot" style="background:var(--coral);"></div>
+              <span class="dd-body-strong">丢掉所有后院里的骰子</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="bullet-dot" style="background:var(--coral);"></div>
+              <span class="dd-body-strong">失去一张已完成的狗狗卡！</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="bullet-dot" style="background:var(--coral);"></div>
+              <span class="dd-body">（是的，辛辛苦苦攒的进度白费了 😱）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:60px; left:80px; right:80px;">
+        <div class="dd-card reveal" style="background:var(--butter); padding:24px 36px;">
+          <p class="dd-body-strong" style="margin:0; text-align:center; font-size:22px;">
+            🎯 核心博弈：多掷骰子 = 更多选择机会，但风险也更大！这就是"赌狗"的乐趣所在！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 9: VIDEO DEMO ===== -->
+    <section class="slide" style="background:var(--cream);">
+      <svg class="deco" style="top:40px;right:60px;width:60px;height:60px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#F8635F" stroke="#2D2D2D" stroke-width="3"/><polygon points="40,30 40,70 75,50" fill="white"/></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:var(--coral); color:white;">08</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:100px; left:80px;">📺 看一遍就会！视频教程</h2>
+
+      <div style="position:absolute; top:200px; left:80px; right:80px; display:flex; gap:30px;">
+        <!-- Quick rules video -->
+        <div class="reveal" style="flex:1; display:flex; flex-direction:column;">
+          <div class="video-frame" style="flex:1; min-height:420px;" onclick="loadVideo(this,'BV1U89zYPE5y')">
+            <div class="video-poster" style="background-image:url('../.frontend-slides/assets/game-cover-3.jpg');">
+              <div class="play-btn"></div>
+            </div>
+          </div>
+          <p class="dd-meta" style="margin-top:10px; text-align:center;">⏱ 1分09秒 · 桌游速成版</p>
+        </div>
+        <!-- Comprehensive video -->
+        <div class="reveal" style="flex:1; display:flex; flex-direction:column;">
+          <div class="video-frame" style="flex:1; min-height:420px;" onclick="loadVideo(this,'BV1RXkJY4EPW')">
+            <div class="video-poster" style="background-image:url('../.frontend-slides/assets/game-cover-2.jpg');">
+              <div class="play-btn"></div>
+            </div>
+          </div>
+          <p class="dd-meta" style="margin-top:10px; text-align:center;">⏱ 11分40秒 · 详细试玩演示</p>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:40px; left:80px; right:80px;">
+        <div class="dd-card reveal" style="display:flex; gap:20px; align-items:center; padding:24px 36px;">
+          <div class="dd-circle" style="background:var(--lavender); width:48px; height:48px; font-size:22px;">💡</div>
+          <p class="dd-body" style="margin:0; flex:1; font-size:20px;">
+            点击封面图加载视频。建议<b>先看速成版了解框架</b>，再看试玩版感受节奏！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 10: ACTION CARDS ===== -->
+    <section class="slide slide-bg-sky">
+      <svg class="deco" style="top:30px;left:60px;width:70px;height:70px;" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="6" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="60" text-anchor="middle" font-size="30">🃏</text></svg>
+      <svg class="deco" style="bottom:60px;right:80px;width:60px;height:60px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#F7C8D4" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="60" text-anchor="middle" font-size="26">✨</text></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:white; color:var(--text-dark);">09</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:110px; left:80px; color:white; text-shadow:3px 3px 0 rgba(0,0,0,0.2);">行动卡：你的秘密武器</h2>
+
+      <div style="position:absolute; top:240px; left:80px; right:80px; display:flex; gap:30px; flex-wrap:wrap;">
+        <div class="dd-card-lg reveal" style="flex:1; min-width:280px; padding:28px 32px; text-align:center;">
+          <div class="dd-circle" style="background:var(--butter); color:var(--text-dark); margin:0 auto 12px; width:56px; height:56px; font-size:26px;">🎲</div>
+          <span class="dd-title" style="font-size:24px;">额外骰子</span>
+          <p class="dd-body" style="font-size:19px; margin-top:8px;">本轮多掷一颗骰子<br>更多机会，更好运气！</p>
+        </div>
+        <div class="dd-card-lg reveal" style="flex:1; min-width:280px; padding:28px 32px; text-align:center;">
+          <div class="dd-circle" style="background:var(--mint); color:var(--text-dark); margin:0 auto 12px; width:56px; height:56px; font-size:26px;">🔄</div>
+          <span class="dd-title" style="font-size:24px;">重掷</span>
+          <p class="dd-body" style="font-size:19px; margin-top:8px;">重新投掷任意数量的骰子<br>不想要的全换掉！</p>
+        </div>
+        <div class="dd-card-lg reveal" style="flex:1; min-width:280px; padding:28px 32px; text-align:center;">
+          <div class="dd-circle" style="background:var(--lavender); color:var(--text-dark); margin:0 auto 12px; width:56px; height:56px; font-size:26px;">👁️</div>
+          <span class="dd-title" style="font-size:24px;">偷看牌库</span>
+          <p class="dd-body" style="font-size:19px; margin-top:8px;">查看牌库顶的卡牌<br>提前规划策略！</p>
+        </div>
+        <div class="dd-card-lg reveal" style="flex:1; min-width:280px; padding:28px 32px; text-align:center;">
+          <div class="dd-circle" style="background:var(--soft-pink); color:var(--text-dark); margin:0 auto 12px; width:56px; height:56px; font-size:26px;">🛡️</div>
+          <span class="dd-title" style="font-size:24px;">防御技能</span>
+          <p class="dd-body" style="font-size:19px; margin-top:8px;">减少后院容量风险<br>关键时刻救命！</p>
+        </div>
+      </div>
+
+      <div style="position:absolute; bottom:60px; left:80px; right:80px;">
+        <div class="dd-card reveal" style="padding:24px 36px;">
+          <p class="dd-body-strong" style="margin:0; font-size:22px;">
+            💡 行动卡每轮可以使用，但数量有限。善用行动卡可以在关键时刻逆转局势！
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 11: STRATEGY TIPS ===== -->
+    <section class="slide" style="background:var(--cream);">
+      <svg class="deco" style="top:40px;right:80px;width:80px;height:80px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="34">💡</text></svg>
+      <svg class="deco" style="bottom:50px;left:60px;width:60px;height:60px;" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="10" fill="#D4A5E8" stroke="#2D2D2D" stroke-width="3"/></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:var(--turquoise); color:white;">10</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:100px; left:80px;">🎯 新手制胜策略</h2>
+
+      <div style="position:absolute; top:240px; left:80px; right:80px; display:flex; gap:36px;">
+        <!-- Strategy cards -->
+        <div class="reveal" style="flex:1; display:flex; flex-direction:column; gap:24px;">
+          <div class="dd-card" style="padding:28px 32px; display:flex; align-items:flex-start; gap:16px;">
+            <div class="dd-circle" style="background:var(--turquoise); width:48px; height:48px; font-size:22px;">1</div>
+            <div>
+              <span class="dd-body-strong">优先选斑点少的狗狗</span>
+              <p class="dd-body" style="margin:4px 0 0 0; font-size:19px;">2-3个斑点的卡最容易完成，快速积累进度</p>
+            </div>
+          </div>
+          <div class="dd-card" style="padding:28px 32px; display:flex; align-items:flex-start; gap:16px;">
+            <div class="dd-circle" style="background:var(--mint); width:48px; height:48px; font-size:22px;">2</div>
+            <div>
+              <span class="dd-body-strong">控制后院风险</span>
+              <p class="dd-body" style="margin:4px 0 0 0; font-size:19px;">后院超过5颗就要谨慎了，见好就收</p>
+            </div>
+          </div>
+          <div class="dd-card" style="padding:28px 32px; display:flex; align-items:flex-start; gap:16px;">
+            <div class="dd-circle" style="background:var(--peach); width:48px; height:48px; font-size:22px;">3</div>
+            <div>
+              <span class="dd-body-strong">多卡并行推进</span>
+              <p class="dd-body" style="margin:4px 0 0 0; font-size:19px;">同时养2-3张卡，灵活适应各种骰子结果</p>
+            </div>
+          </div>
+        </div>
+        <div class="reveal" style="flex:1; display:flex; flex-direction:column; gap:24px;">
+          <div class="dd-card" style="padding:28px 32px; display:flex; align-items:flex-start; gap:16px;">
+            <div class="dd-circle" style="background:var(--lavender); width:48px; height:48px; font-size:22px;">4</div>
+            <div>
+              <span class="dd-body-strong">行动卡别浪费</span>
+              <p class="dd-body" style="margin:4px 0 0 0; font-size:19px;">重掷是好东西，关键骰子不理想时果断用</p>
+            </div>
+          </div>
+          <div class="dd-card" style="padding:28px 32px; display:flex; align-items:flex-start; gap:16px;">
+            <div class="dd-circle" style="background:var(--soft-pink); width:48px; height:48px; font-size:22px;">5</div>
+            <div>
+              <span class="dd-body-strong">观察对手进度</span>
+              <p class="dd-body" style="margin:4px 0 0 0; font-size:19px;">有人快完成了？考虑冒险加速追上去</p>
+            </div>
+          </div>
+          <div class="dd-card" style="padding:28px 32px; display:flex; align-items:flex-start; gap:16px;">
+            <div class="dd-circle" style="background:var(--sky); width:48px; height:48px; font-size:22px;">6</div>
+            <div>
+              <span class="dd-body-strong">记住：这不是比分数</span>
+              <p class="dd-body" style="margin:4px 0 0 0; font-size:19px;">先到6张就赢！不需要追求高分卡</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 12: COMMON MISTAKES ===== -->
+    <section class="slide slide-bg-lavender">
+      <svg class="deco" style="top:40px;left:70px;width:60px;height:60px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="30">🚫</text></svg>
+      <svg class="deco" style="bottom:60px;right:70px;width:60px;height:60px;opacity:0.7;" viewBox="0 0 100 100"><polygon points="50,10 60,35 88,38 67,58 76,86 50,70 24,86 33,58 12,38 40,35" fill="white" stroke="#2D2D2D" stroke-width="3"/></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:white; color:var(--text-dark);">11</span>
+      </div>
+
+      <h2 class="dd-headline reveal" style="position:absolute; top:110px; left:80px; color:white; text-shadow:3px 3px 0 rgba(0,0,0,0.2);">⚠️ 新手常见误区</h2>
+
+      <div style="position:absolute; top:240px; left:80px; right:80px; display:flex; gap:36px;">
+        <div class="dd-card-lg reveal" style="flex:1; padding:32px 36px;">
+          <span class="dd-title" style="font-size:28px; color:var(--coral);">❌ 不要做的事</span>
+          <div style="margin-top:18px; display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">❌</span>
+              <span class="dd-body">盲目追求高分卡，忽略了完成速度</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">❌</span>
+              <span class="dd-body">后院已经 5-6 颗了还继续赌</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">❌</span>
+              <span class="dd-body">忘记每回合可以使用行动卡</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">❌</span>
+              <span class="dd-body">所有骰子都放在同一张卡上</span>
+            </div>
+          </div>
+        </div>
+        <div class="dd-card-lg reveal" style="flex:1; padding:32px 36px;">
+          <span class="dd-title" style="font-size:28px; color:var(--mint);">✅ 正确做法</span>
+          <div style="margin-top:18px; display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">✅</span>
+              <span class="dd-body">优先完成斑点少的简单狗狗卡</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">✅</span>
+              <span class="dd-body">后院 5 颗时果断收手</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">✅</span>
+              <span class="dd-body">每回合评估是否使用重掷等技能</span>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:24px;">✅</span>
+              <span class="dd-body">2-3 张卡并行推进，灵活分配骰子</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 13: READY TO PLAY ===== -->
+    <section class="slide slide-bg-turquoise">
+      <svg class="deco" style="top:50px;left:100px;width:80px;height:80px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#FDE68A" stroke="#2D2D2D" stroke-width="3"/><text x="50" y="62" text-anchor="middle" font-size="34">🎉</text></svg>
+      <svg class="deco" style="top:60px;right:120px;width:70px;height:70px;" viewBox="0 0 100 100"><polygon points="50,10 60,35 88,38 67,58 76,86 50,70 24,86 33,58 12,38 40,35" fill="white" stroke="#2D2D2D" stroke-width="3"/></svg>
+      <svg class="deco" style="bottom:80px;left:200px;width:60px;height:60px;" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#F7C8D4" stroke="#2D2D2D" stroke-width="3"/></svg>
+      <svg class="deco" style="bottom:100px;right:160px;width:50px;height:50px;opacity:0.7;" viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="8" fill="#A8E6CF" stroke="#2D2D2D" stroke-width="3"/></svg>
+
+      <div style="position:absolute; top:50px; left:70px;">
+        <span class="dd-badge" style="background:white; color:var(--text-dark);">12</span>
+      </div>
+
+      <div class="dd-card-lg reveal" style="position:absolute; top:120px; left:120px; right:120px; bottom:120px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:60px;">
+        <h2 class="dd-display" style="font-size:100px;">准备开玩！🐕</h2>
+        <p class="dd-subtitle" style="font-size:28px; margin-top:16px;">你已经掌握了狗运当骰的全部核心规则</p>
+
+        <div style="margin-top:32px; display:flex; gap:24px; flex-wrap:wrap; justify-content:center;">
+          <div class="dd-badge bounce-in" style="background:var(--butter); font-size:22px; padding:12px 28px;">🎯 目标：先完成 6 张狗狗</div>
+          <div class="dd-badge bounce-in" style="background:var(--mint); font-size:22px; padding:12px 28px;">🎲 掷骰子 → 放斑点</div>
+          <div class="dd-badge bounce-in" style="background:var(--soft-pink); font-size:22px; padding:12px 28px;">⚠️ 注意后院别炸</div>
+        </div>
+
+        <div style="margin-top:40px; display:flex; gap:20px;">
+          <div class="dd-card-sm" style="padding:18px 28px; text-align:center;">
+            <span style="font-size:28px;">🏪</span>
+            <p class="dd-body" style="margin:4px 0 0 0; font-size:18px;">游人码头有售</p>
+          </div>
+          <div class="dd-card-sm" style="padding:18px 28px; text-align:center;">
+            <span style="font-size:28px;">🌐</span>
+            <p class="dd-body" style="margin:4px 0 0 0; font-size:18px;">BGA 在线可玩</p>
+          </div>
+          <div class="dd-card-sm" style="padding:18px 28px; text-align:center;">
+            <span style="font-size:28px;">🎬</span>
+            <p class="dd-body" style="margin:4px 0 0 0; font-size:18px;">B站搜教程更多</p>
+          </div>
+        </div>
+
+        <p class="dd-body" style="margin-top:36px; font-size:22px; opacity:0.8;">
+          现在就叫上朋友，来一局欢乐的"赌狗"体验吧！🐶🎲
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Navigation dots -->
+<div class="deck-nav" id="deckNav"></div>
+<div class="slide-counter" id="slideCounter"></div>
+
+<!-- Edit mode toggle -->
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="编辑模式 (E)">✏️ 编辑</button>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   =========================================== */
+(function() {
+  const stage = document.getElementById('deckStage');
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let currentSlide = 0;
+
+  // Stage scaling
+  function scale() {
+    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    const x = (window.innerWidth - 1920 * factor) / 2;
+    const y = (window.innerHeight - 1080 * factor) / 2;
+    stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+  }
+  scale();
+  window.addEventListener('resize', scale);
+
+  // Navigation dots
+  const nav = document.getElementById('deckNav');
+  const counter = document.getElementById('slideCounter');
+  for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot';
+    dot.addEventListener('click', () => showSlide(i));
+    nav.appendChild(dot);
+  }
+
+  function showSlide(index) {
+    currentSlide = Math.max(0, Math.min(index, totalSlides - 1));
+    slides.forEach((s, i) => {
+      s.classList.toggle('active', i === currentSlide);
+      s.classList.toggle('visible', i === currentSlide);
+    });
+    // Update nav dots
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === currentSlide);
+    });
+    counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', (e) => {
+    if (e.target.getAttribute('contenteditable') === 'true') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      showSlide(currentSlide + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      showSlide(currentSlide - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      showSlide(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      showSlide(totalSlides - 1);
+    }
+  });
+
+  // Touch nav
+  let touchStartX = 0, touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      showSlide(dx < 0 ? currentSlide + 1 : currentSlide - 1);
+    }
+  });
+
+  // Mouse wheel
+  let wheelTimeout;
+  document.addEventListener('wheel', (e) => {
+    if (wheelTimeout) return;
+    wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 800);
+    if (e.deltaY > 0) showSlide(currentSlide + 1);
+    else if (e.deltaY < 0) showSlide(currentSlide - 1);
+  }, { passive: true });
+
+  // Initialize
+  showSlide(0);
+
+  // ===========================================
+  // INLINE TEXT EDITING
+  // ===========================================
+  const editHotzone = document.getElementById('editHotzone');
+  const editToggle = document.getElementById('editToggle');
+  let hideTimeout;
+  let isEditing = false;
+
+  function enterEditMode() {
+    isEditing = true;
+    editToggle.classList.add('active');
+    editToggle.textContent = '💾 保存';
+    // Make all text elements editable
+    document.querySelectorAll('.dd-display, .dd-headline, .dd-title, .dd-subtitle, .dd-body, .dd-body-strong, .dd-meta').forEach(el => {
+      if (!el.closest('svg') && !el.querySelector('input,textarea')) {
+        el.setAttribute('contenteditable', 'true');
+        el.style.outline = '2px dashed rgba(0,0,0,0.15)';
+        el.style.cursor = 'text';
+      }
+    });
+  }
+
+  function exitEditMode() {
+    isEditing = false;
+    editToggle.classList.remove('active');
+    editToggle.textContent = '✏️ 编辑';
+    document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.removeAttribute('contenteditable');
+      el.style.outline = '';
+      el.style.cursor = '';
+    });
+  }
+
+  editToggle.addEventListener('click', () => {
+    if (isEditing) exitEditMode();
+    else enterEditMode();
+  });
+
+  editHotzone.addEventListener('mouseenter', () => {
+    clearTimeout(hideTimeout);
+    editToggle.classList.add('show');
+  });
+  editHotzone.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => {
+      if (!isEditing) editToggle.classList.remove('show');
+    }, 400);
+  });
+  editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+  editToggle.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => {
+      if (!isEditing) editToggle.classList.remove('show');
+    }, 400);
+  });
+  editHotzone.addEventListener('click', () => {
+    if (isEditing) exitEditMode();
+    else enterEditMode();
+  });
+
+  // E key toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+      if (isEditing) exitEditMode();
+      else enterEditMode();
+    }
+    // Ctrl+S save
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      if (isEditing) {
+        exitEditMode();
+        // Could add auto-save here
+        console.log('Edits saved!');
+      }
+    }
+  });
+})();
+  // Video poster click handler (global scope)
+  window.loadVideo = function(container, bvid) {
+    if (container.querySelector('iframe')) return; // already loaded
+    var poster = container.querySelector('.video-poster');
+    if (poster) poster.classList.add('hidden');
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://player.bilibili.com/player.html?bvid=' + bvid + '&page=1&autoplay=1&as_wide=1&high_quality=1';
+    iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('allow', 'autoplay');
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:2;';
+    container.appendChild(iframe);
+    container.style.cursor = 'default';
+    container.onclick = null;
+  };
+
+</script>
+</body>
+</html>
